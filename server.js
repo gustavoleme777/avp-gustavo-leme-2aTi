@@ -5,55 +5,94 @@ const port = 3000;
 
 app.use(express.json());
 
-const alunos = [
-  { id: 1, nome: "Augusto", turma: "2TIB" },
-  { id: 2, nome: "Gustavo", turma: "2TIB" },
-  { id: 3, nome: "Rayssa", turma: "2TIB" },
-  { id: 4, nome: "Amanda", turma: "2TIB" },
-  { id: 5, nome: "Marcos", turma: "2TIB" },
-  { id: 6, nome: "Michelly", turma: "2TIB" },
-  { id: 7, nome: "Maria Fernanda", turma: "2TIB" },
-  { id: 8, nome: "Fellype", turma: "2TIB" }
+const times = [
+  { id: 1, nome: "Flamengo", cidade: "Rio de Janeiro", titulos: 8 },
+  { id: 2, nome: "Palmeiras", cidade: "Sao Paulo", titulos: 12 },
+  { id: 3, nome: "Santos", cidade: "Santos", titulos: 8 },
+  { id: 4, nome: "Corinthians", cidade: "Sao Paulo", titulos: 7 }
+];
+
+const partidas = [
+  { id: 1, mandante: "Flamengo", visitante: "Palmeiras", golsMandante: 2, golsVisitante: 1, data: "2026-09-10" },
+  { id: 2, mandante: "Santos", visitante: "Corinthians", golsMandante: 0, golsVisitante: 0, data: "2026-09-11" }
 ];
 
 app.get("/", (req, res) => {
   res.json({
-    mensagem: "Servidor Express funcionando!",
-    disciplina: "Desenvolvimento de Websites",
-    bimestre: "3º bimestre"
+    mensagem: "API de futebol funcionando!",
+    endpoints: ["/times", "/times/:id", "/partidas", "POST /times", "POST /partidas"]
   });
 });
 
-app.get("/alunos", (req, res) => {
-  res.json(alunos);
+app.get("/times", (req, res) => {
+  res.json(times);
 });
 
-app.get("/alunos/:id", (req, res) => {
+app.get("/times/:id", (req, res) => {
   const id = Number(req.params.id);
 
-  const aluno = alunos.find((aluno) => aluno.id === id);
+  const time = times.find((time) => time.id === id);
 
-  if (!aluno) {
+  if (!time) {
     return res.status(404).json({
-      message: "Aluno não encontrado"
+      mensagem: "Time nao encontrado"
     });
   }
 
-  res.json(aluno);
+  res.json(time);
 });
 
-app.post("/alunos", (req, res) => {
-  const novoAluno = {
-    id: alunos.length + 1,
-    nome: req.body.nome,
-    turma: req.body.turma
+app.get("/partidas", (req, res) => {
+  res.json(partidas);
+});
+
+app.post("/times", (req, res) => {
+  const { nome, cidade, titulos = 0 } = req.body;
+
+  if (!nome || !cidade) {
+    return res.status(400).json({
+      mensagem: "Nome e cidade sao obrigatorios"
+    });
+  }
+
+  const novoTime = {
+    id: times.length + 1,
+    nome,
+    cidade,
+    titulos: Number(titulos)
   };
 
-  alunos.push(novoAluno);
+  times.push(novoTime);
 
   res.status(201).json({
-    mensagem: "Aluno cadastrado com sucesso",
-    aluno: novoAluno
+    mensagem: "Time cadastrado com sucesso",
+    time: novoTime
+  });
+});
+
+app.post("/partidas", (req, res) => {
+  const { mandante, visitante, golsMandante = 0, golsVisitante = 0, data } = req.body;
+
+  if (!mandante || !visitante || !data) {
+    return res.status(400).json({
+      mensagem: "Mandante, visitante e data sao obrigatorios"
+    });
+  }
+
+  const novaPartida = {
+    id: partidas.length + 1,
+    mandante,
+    visitante,
+    golsMandante: Number(golsMandante),
+    golsVisitante: Number(golsVisitante),
+    data
+  };
+
+  partidas.push(novaPartida);
+
+  res.status(201).json({
+    mensagem: "Partida cadastrada com sucesso",
+    partida: novaPartida
   });
 });
 
