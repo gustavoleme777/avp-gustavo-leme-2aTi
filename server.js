@@ -1,7 +1,13 @@
 import express from "express";
+import dotenv from "dotenv";
+import logger from "./middleware/middleware/logger.js";
+
+dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+
+app.use(logger);
 
 app.use(express.json());
 
